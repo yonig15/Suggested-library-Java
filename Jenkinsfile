@@ -6,9 +6,9 @@ pipeline {
         maven "maven-3.6.2"
     }
 
-    // environment {
-    //     GIT_URL_HTTP = "https://github.com/PeretzBatel/lib0.git"
-    // }
+    environment {
+        GIT_URL_HTTP = "https://github.com/PeretzBatel/lib0.git"
+    }
 
     stages {
         stage("Calculate & Set version") {
@@ -42,22 +42,24 @@ pipeline {
             }
         }
 
-        stage("Publish") {
-            when {
-                anyOf {
-                    branch "main"
-                    branch "release/*"
-                }
-            }
-        steps {
-            configFileProvider([configFile(fileId: 'maven_settings', variable: 'MAVEN_SETTINGS')]) {
-    // some block
 
-            sh "mvn -s $MAVEN_SETTINGS deploy"
-            }
+
+    //     stage("Publish") {
+    //         when {
+    //             anyOf {
+    //                 branch "main"
+    //                 branch "release/*"
+    //             }
+    //         }
+    //     steps {
+    //         configFileProvider([configFile(fileId: 'maven_settings', variable: 'MAVEN_SETTINGS')]) {
+    // // some block
+
+    //         sh "mvn -s $MAVEN_SETTINGS deploy"
+    //         }
          
-            }
-        }
+    //         }
+    //     }
 
 //         stage("Tag") {
 //             when {
