@@ -6,9 +6,9 @@ pipeline {
         maven "maven-3.6.2"
     }
 
-    environment {
-        GIT_URL_HTTP = "https://github.com/PeretzBatel/lib0.git"
-    }
+    // environment {
+    //     GIT_URL_HTTP = "https://github.com/PeretzBatel/lib0.git"
+    // }
 
     stages {
         stage("Calculate & Set version") {
