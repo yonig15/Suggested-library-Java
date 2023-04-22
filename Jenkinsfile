@@ -1,46 +1,29 @@
 pipeline {
-
     agent any
-
-    tools {
-        maven "maven-3.6.2"
-    }
-
-    environment {
-        GIT_URL_HTTP = "https://github.com/yonig15/Suggested-library-Java"
-    }
-
+    
     stages {
-        stage("Calculate & Set version") {
+        stage('Calculate & Set Version') {
             when {
-                branch "release/*"
+                branch 'release/*'
             }
             steps {
                 script {
-                    majorMinor = env.BRANCH_NAME.split("/")[1]  // x.y
-                    withCredentials([[$class: "UsernamePasswordMultiBinding", credentialsId: "gitlab-pass", usernameVariable: "GL_USER", passwordVariable: "GL_PASS"]]) {
-                        sh "git fetch http://${GL_USER}:${GL_PASS}@${env.GIT_URL_HTTP} --tags"
-                    }
-                    previousTag = sh(script: "git describe --tags --abbrev=0 | grep -E '^$majorMinor' || true", returnStdout: true).trim()  // x.y.z or empty string. `grep` is used to prevent returning a tag from another release branch; `true` is used to not fail the pipeline if grep returns nothing.
-
-                    if (!previousTag) {
-                        patch = "0"
-                    } else {
-                        patch = (previousTag.tokenize(".")[2].toInteger() + 1).toString()
-                    }
-                    env.VERSION = majorMinor + "." + patch
-
-                    sh "mvn versions:set -DnewVersion=$env.VERSION"
+                    def branchName = env.BRANCH_NAME
+                    def version = branchName.split('/')[1]
+                    def pom = readMavenPom file: 'pom.xml'
+                    def newVersion = "${pom.version}.${version}"
+                    sh "mvn versions:set -DnewVersion=${newVersion}"
+                    sh "git commit -m 'Update version to ${newVersion}' pom.xml"
+                    sh "git push"
                 }
             }
         }
-
-        stage("Build & Test") {
+        stage('Build & Test') {
             steps {
-                sh "mvn verify"
-                
+                sh "mvn clean test"
             }
         }
+<<<<<<< HEAD
 
         
         
@@ -82,5 +65,35 @@ pipeline {
 //             }
 //         }
 
+=======
+>>>>>>> efe7335 (fix bags)
+    }
+    post {
+        success {
+            slackSend color: '#36a64f', message: "Build succeeded!",
+                attachments: [
+                    [
+                        color: '#36a64f',
+                        fallback: 'Build succeeded!',
+                        title: 'Build Status',
+                        text: 'Build succeeded!'
+                    ]
+                ]
+        }
+        failure {
+            slackSend color: '#ff0000', message: "Build failed!",
+                attachments: [
+                    [
+                        color: '#ff0000',
+                        fallback: 'Build failed!',
+                        title: 'Build Status',
+                        text: 'Build failed!'
+                    ]
+                ]
+        }
+        always {
+            sh "mvn checkstyle:checkstyle"
+            checkstyle pattern: 'target/checkstyle-result.xml'
+        }
     }
 }
