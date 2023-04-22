@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        GIT_URL_HTTP = "https://github.com/PeretzBatel/lib0.git"
+        GIT_URL_HTTP = "https://github.com/yonig15/Suggested-library-Java"
     }
 
     stages {
