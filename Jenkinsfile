@@ -23,50 +23,6 @@ pipeline {
                 sh "mvn clean test"
             }
         }
-<<<<<<< HEAD
-
-        
-        
-
-
-        
-        
-
-    //     stage("Publish") {
-    //         when {
-    //             anyOf {
-    //                 branch "main"
-    //                 branch "release/*"
-    //             }
-    //         }
-    //     steps {
-    //         configFileProvider([configFile(fileId: 'maven_settings', variable: 'MAVEN_SETTINGS')]) {
-    // // some block
-
-    //         sh "mvn -s $MAVEN_SETTINGS deploy"
-    //         }
-         
-    //         }
-    //     }
-
-//         stage("Tag") {
-//             when {
-//                 branch "release/*"
-//             }
-//             steps {
-//                 script {
-//                     // sshagent(credentials: ["jenkins-ssh"]) {
-//                     withCredentials([[$class: "UsernamePasswordMultiBinding", credentialsId: "gitlab-userpass", usernameVariable: "GL_USER", passwordVariable: "GL_PASS"]]) {
-//                         sh "git clean -f -x"
-//                         sh "git tag -a ${env.VERSION} -m 'version ${env.VERSION}'"
-//                         sh "git push http://${GL_USER}:${GL_PASS}@${env.GIT_URL_HTTP} --tag"
-//                     }
-//                 }
-//             }
-//         }
-
-=======
->>>>>>> efe7335 (fix bags)
     }
     post {
         success {
