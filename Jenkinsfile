@@ -60,3 +60,4 @@ node {
     slackSend color: 'danger', message: "Build failed!", channel: SLACK_CHANNEL
   }    
 }
+}
