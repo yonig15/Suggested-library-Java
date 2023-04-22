@@ -21,19 +21,19 @@ pipeline {
                 }
             }
         }
-        stage('Calculate & Set Version') {
-      echo "------------------branch: ${env.BRANCH_NAME}"
-      if (env.BRANCH_NAME =~ /^release\/.*$/) {
-        def branchName = env.BRANCH_NAME
-        def version = branchName.substring(branchName.lastIndexOf('/') + 1)
-        sh "mvn versions:set -DnewVersion=${version}"      
-        withCredentials([gitUsernamePassword(credentialsId: 'github tokenpass', gitToolName: 'Default')]) {
-          sh "git add ."
-          sh "git commit -m 'Bump version to ${version}'" 
-          sh "git push --force-with-lease origin HEAD:${env.BRANCH_NAME}"
-        }         
-      }
-    }
+        stage('Bump Version') {
+            echo "------------------branch: ${env.BRANCH_NAME}"
+            if (env.BRANCH_NAME =~ /^release\/.*$/) {
+                def branchName = env.BRANCH_NAME
+                def version = branchName.substring(branchName.lastIndexOf('/') + 1)
+                sh "mvn versions:set -DnewVersion=${version}"      
+                withCredentials([gitUsernamePassword(credentialsId: 'github tokenpass', gitToolName: 'Default')]) {
+                    sh "git add ."
+                    sh "git commit -m 'Bump version to ${version}'" 
+                    sh "git push --force-with-lease origin HEAD:${env.BRANCH_NAME}"
+                }         
+            }
+        }
         stage('Build & Test') {
             steps {
                 sh "mvn clean test"
@@ -45,7 +45,7 @@ pipeline {
             slackSend color: '#36a64f', message: "Build succeeded!",
                 attachments: [
                     [
-                        channel: '#general'
+                        channel: '#general',
                         color: '#36a64f',
                         fallback: 'Build succeeded!',
                         title: 'Build Status',
@@ -57,7 +57,7 @@ pipeline {
             slackSend color: '#ff0000', message: "Build failed!",
                 attachments: [
                     [
-                        channel: '#general'
+                        channel: '#general',
                         color: '#ff0000',
                         fallback: 'Build failed!',
                         title: 'Build Status',
