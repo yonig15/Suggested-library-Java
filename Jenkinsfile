@@ -1,15 +1,27 @@
-node {
-  def SLACK_CHANNEL = "#general"
-  try {
-    stage('Checkout') {
-      checkout scm
-    }        
+pipeline {
+    agent any
     
-    stage('Build & Test') {
-      sh 'mvn verify'
+    tools {
+        maven 'maven-3.6.2' 
     }
-
-    stage('Calculate & Set Version') {
+    stages {
+        stage('Calculate & Set Version') {
+            when {
+                branch 'release/*'
+            }
+            steps {
+                script {
+                    def branchName = env.BRANCH_NAME
+                    def version = branchName.split('/')[1]
+                    def pom = readMavenPom file: 'pom.xml'
+                    def newVersion = "${pom.version}.${version}"
+                    sh "mvn versions:set -DnewVersion=${newVersion}"
+                    sh "git commit -m 'Update version to ${newVersion}' pom.xml"
+                    sh "git push"
+                }
+            }
+        }
+        stage('Calculate & Set Version') {
       echo "------------------branch: ${env.BRANCH_NAME}"
       if (env.BRANCH_NAME =~ /^release\/.*$/) {
         def branchName = env.BRANCH_NAME
@@ -22,11 +34,40 @@ node {
         }         
       }
     }
-
-    stage('send success message') {
-      slackSend color: 'good', message: "Build successful!", channel: SLACK_CHANNEL
-    }       
-  } catch(ex) {
-    slackSend color: 'danger', message: "Build failed!", channel: SLACK_CHANNEL
-  }
-  }
+        stage('Build & Test') {
+            steps {
+                sh "mvn clean test"
+            }
+        }
+    }
+    post {
+        success {
+            slackSend color: '#36a64f', message: "Build succeeded!",
+                attachments: [
+                    [
+                        channel: '#general'
+                        color: '#36a64f',
+                        fallback: 'Build succeeded!',
+                        title: 'Build Status',
+                        text: 'Build succeeded!'
+                    ]
+                ]
+        }
+        failure {
+            slackSend color: '#ff0000', message: "Build failed!",
+                attachments: [
+                    [
+                        channel: '#general'
+                        color: '#ff0000',
+                        fallback: 'Build failed!',
+                        title: 'Build Status',
+                        text: 'Build failed!'
+                    ]
+                ]
+        }
+        always {
+            sh "mvn checkstyle:checkstyle"
+            checkstyle pattern: 'target/checkstyle-result.xml'
+        }
+    }
+}
