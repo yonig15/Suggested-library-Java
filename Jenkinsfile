@@ -29,3 +29,4 @@ node {
   } catch(ex) {
     slackSend color: 'danger', message: "Build failed!", channel: SLACK_CHANNEL
   }
+  }
