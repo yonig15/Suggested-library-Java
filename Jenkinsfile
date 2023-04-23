@@ -1,64 +1,47 @@
 pipeline {
     agent any
-    
-    tools {
-        maven 'maven-3.6.2' 
-    }
-    
     stages {
-        stage('Bump Version') {
+        stage('Calculate & Set Version') {
+            when {
+                branch 'release/*'
+            }
             steps {
-                echo "------------------branch: ${env.BRANCH_NAME}"
                 script {
-                    if (env.BRANCH_NAME =~ /^release\/.*$/) {
-                        def branchName = env.BRANCH_NAME
-                        def version = branchName.substring(branchName.lastIndexOf('/') + 1)
-                        sh "mvn versions:set -DnewVersion=${version}"      
-                        withCredentials([gitUsernamePassword(credentialsId: 'github tokenpass', gitToolName: 'Default')]) {
-                            sh "git add ."
-                            sh "git commit -m 'Bump version to ${version}'" 
-                            sh "git push --force-with-lease origin HEAD:${env.BRANCH_NAME}"
-                        }         
-                    }
+                    def branchName = env.BRANCH_NAME
+                    def version = branchName.substring(branchName.indexOf('/') + 1)
+                    def majorMinorVersion = version.substring(0, version.lastIndexOf('.'))
+                    def patchVersion = version.substring(version.lastIndexOf('.') + 1)
+                    def nextPatchVersion = Integer.parseInt(patchVersion) + 1
+                    def newVersion = majorMinorVersion + '.' + nextPatchVersion
+
+                    sh "mvn versions:set -DnewVersion=${newVersion}"
+                    sh "git commit -am 'Bump version to ${newVersion}'"
+                    sh "git push"
                 }
             }
         }
-        
         stage('Build & Test') {
             steps {
-                sh "mvn clean test"
+                sh "mvn clean install"
+            }
+        }
+        stage('Checkstyle') {
+            steps {
+                sh "mvn checkstyle:checkstyle"
+            }
+            post {
+                always {
+                    publishCheckStyle pattern: 'target/site/checkstyle-result.xml'
+                }
             }
         }
     }
-    
     post {
         success {
-            slackSend color: '#36a64f', message: "Build succeeded!",
-                attachments: [
-                    [
-                        color: '#36a64f',
-                        fallback: 'Build succeeded!',
-                        title: 'Build Status',
-                        text: 'Build succeeded!'
-                    ]
-                ]
+            slackSend(color: 'good', message: "Build succeeded!\n\n*Commit:* ${env.GIT_COMMIT}\n*Branch:* ${env.BRANCH_NAME}\n*Build URL:* ${env.BUILD_URL}")
         }
-        
         failure {
-            slackSend color: '#ff0000', message: "Build failed!",
-                attachments: [
-                    [
-                        color: '#ff0000',
-                        fallback: 'Build failed!',
-                        title: 'Build Status',
-                        text: 'Build failed!'
-                    ]
-                ]
-        }
-        
-        always {
-            sh "mvn checkstyle:checkstyle"
-            checkstyle pattern: 'target/checkstyle-result.xml'
+            slackSend(color: 'danger', message: "Build failed!\n\n*Commit:* ${env.GIT_COMMIT}\n*Branch:* ${env.BRANCH_NAME}\n*Build URL:* ${env.BUILD_URL}")
         }
     }
 }
