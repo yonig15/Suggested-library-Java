@@ -30,7 +30,7 @@ pipeline {
                    
                         sh "git add ."
                         //sh "git pull --rebase origin ${env.BRANCH_NAME}"
-                        sh "git commit -am 'Bump version to ${newVersion}'"
+                        sh "git commit -am 'Bump version to ${fullVersion}'"
                         sh "git push -u origin HEAD:${env.BRANCH_NAME}"
                     }
                     }else{
