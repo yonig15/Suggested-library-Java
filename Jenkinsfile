@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    tools {
+    maven "maven-3.6.2"
+    jdk "JDK"
+}
     stages {
         stage('Calculate & Set Version') {
             steps {
