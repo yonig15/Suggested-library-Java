@@ -8,20 +8,28 @@ pipeline {
             steps {
                 script {
                     def branchName = env.BRANCH_NAME
-                    def version = branchName.substring(branchName.indexOf('/') + 1)
-                    def majorMinorVersion = version.substring(0, version.lastIndexOf('.'))
-                    def patchVersion = version.substring(version.lastIndexOf('.') + 1)
-                    def nextPatchVersion = Integer.parseInt(patchVersion) + 1
-                    def newVersion = majorMinorVersion + '.' + nextPatchVersion
+                    println "branch name are: ${env.BRANCH_NAME}"
+
+                    // def version = branchName.substring(branchName.indexOf('/') + 1)
+                    // def majorMinorVersion = version.substring(0, version.lastIndexOf('.'))
+                    // def patchVersion = version.substring(version.lastIndexOf('.') + 1)
+                    // def nextPatchVersion = Integer.parseInt(patchVersion) + 1
+                    // def newVersion = majorMinorVersion + '.' + nextPatchVersion
+
+                    if (branchName.startsWith('release/')){
+                        def fullVersion = branchName.split('/')[1]
+                        sh "mvn versions:set -DnewVersion=${newVersion}"
+                    }else{
+                         println "this is not release branch"
+                    }
 
                     def changes  = sh(script: 'git diff --name-only', returnStdout: true)
                     println "changes are: ${changes}"
-                    if(changes == '') {
+                    if(changes != '') {
                     withCredentials([gitUsernamePassword(credentialsId: 'GitHub', gitToolName: 'Default')]) {
                    
                         sh "git add ."
                         sh "git pull --rebase origin ${env.BRANCH_NAME}"
-                        sh "mvn versions:set -DnewVersion=${newVersion}"
                         sh "git commit -am 'Bump version to ${newVersion}'"
                         sh "git push -u origin HEAD:${env.BRANCH_NAME}"
                     }
