@@ -4,7 +4,7 @@
 
   <groupId>spelling</groupId>
   <artifactId>spelling</artifactId>
-  <version>2.1</version>
+  <version>1.0</version>
   <packaging>jar</packaging>
 
   <name>spelling</name>
