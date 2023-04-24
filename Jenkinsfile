@@ -13,14 +13,15 @@ pipeline {
                     def patchVersion = version.substring(version.lastIndexOf('.') + 1)
                     def nextPatchVersion = Integer.parseInt(patchVersion) + 1
                     def newVersion = majorMinorVersion + '.' + nextPatchVersion
-                    def chenges = sh(script: 'git diff --name-only',returnStdout:true)
-                    println "changes are :${chenges}"
+
+                    def chenges = sh(script: 'git diff --name-only', returnStdout: true)
+                    println "changes are: ${chenges}"
                     if(changes != '') {
                     withCredentials([gitUsernamePassword(credentialsId: 'GitHub', gitToolName: 'Default')]) {
                    
                         sh "mvn versions:set -DnewgVersion=${newVersion}"
                         sh "git commit -am 'Bump version to ${newVersion}'"
-                        sh "git push -u origin ${env.BRANCH_NAME}"
+                        sh "git push -u origin HEAD:${env.BRANCH_NAME}"
                     }
                     }else{
                         println 'no changes, no need to commit'
