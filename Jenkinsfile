@@ -15,9 +15,9 @@ pipeline {
                     // def patchVersion = version.substring(version.lastIndexOf('.') + 1)
                     // def nextPatchVersion = Integer.parseInt(patchVersion) + 1
                     // def newVersion = majorMinorVersion + '.' + nextPatchVersion
+                       def fullVersion = branchName.split('/')[1]
 
                     if (branchName.startsWith('release/')){
-                        def fullVersion = branchName.split('/')[1]
                         sh "mvn versions:set -DnewVersion=${fullVersion}"
                     }else{
                          println "this is not release branch"
