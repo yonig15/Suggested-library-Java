@@ -19,7 +19,7 @@ pipeline {
                     if(changes != '') {
                     withCredentials([gitUsernamePassword(credentialsId: 'GitHub', gitToolName: 'Default')]) {
                    
-                        sh "mvn versions:set -DnewVersion=${newVersion}"
+                        sh "mvn versions:set -DnewgVersion=${newVersion}"
                         sh "git commit -am 'Bump version to ${newVersion}'"
                         sh "git push -u origin HEAD:${env.BRANCH_NAME}"
                     }
@@ -40,11 +40,11 @@ pipeline {
             steps {
                 sh "mvn checkstyle:checkstyle"
             }
-            post {
-                always {
-                    publishCheckStyle pattern: 'target/site/checkstyle-result.xml'
-                }
-            }
+            // post {
+            //     always {
+            //         publishCheckStyle pattern: 'target/site/checkstyle-result.xml'
+            //     }
+            // }
         }
     }
     post {
