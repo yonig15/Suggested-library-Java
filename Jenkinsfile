@@ -15,7 +15,6 @@ pipeline {
                     def newVersion = majorMinorVersion + '.' + nextPatchVersion
                     def chenges = sh(script: 'git diff --name-only',returnStdout:true)
                     println "changes are :${chenges}"
-
                     if(changes != '') {
                     withCredentials([gitUsernamePassword(credentialsId: 'GitHub', gitToolName: 'Default')]) {
                    
