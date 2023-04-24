@@ -1,6 +1,17 @@
 pipeline {
     agent any
     stages {
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM',
+                          branches: [[name: '*/main']],
+                          doGenerateSubmoduleConfigurations: false,
+                          extensions: [[$class: 'RelativeTargetDirectory',
+                                        relativeTargetDir: 'suggested-library-java']],
+                          submoduleCfg: [],
+                          userRemoteConfigs: [[url: 'https://github.com/yonig15/Suggested-library-Java.git']]])
+            }
+        }
         stage('Calculate & Set Version') {
             when {
                 branch 'release/*'
