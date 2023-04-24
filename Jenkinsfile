@@ -13,8 +13,8 @@ pipeline {
                     def patchVersion = version.substring(version.lastIndexOf('.') + 1)
                     def nextPatchVersion = Integer.parseInt(patchVersion) + 1
                     def newVersion = majorMinorVersion + '.' + nextPatchVersion
-                    def chenges = sh(script: 'git diff --name-only',returnStdout:true)
-                    println "changes are :${chenges}"
+                    def changes = sh(script: 'git diff --name-only',returnStdout:true)
+                    println "changes are :${changes}"
                     
                     if(changes != '') {
                     withCredentials([gitUsernamePassword(credentialsId: 'GitHub', gitToolName: 'Default')]) {
