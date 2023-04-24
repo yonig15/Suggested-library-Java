@@ -16,7 +16,7 @@ pipeline {
 
                     sh "mvn versions:set -DnewVersion=${newVersion}"
                     sh "git commit -am 'Bump version to ${newVersion}'"
-                    sh "git push -u"
+                    sh "git push -u origin ${env.BRANCH_NAME}"
                 }
             }
         }
