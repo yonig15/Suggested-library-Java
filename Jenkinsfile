@@ -13,7 +13,7 @@ pipeline {
 
                     sh "mvn versions:set -DnewVersion=${newVersion}"
                     sh "git commit -am 'Bump version to ${newVersion}'"
-                    sh "git push"
+                    sh "git push -u"
                 }
             }
         }
