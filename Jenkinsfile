@@ -1,22 +1,7 @@
 pipeline {
     agent any
     stages {
-        stage('Checkout') {
-            steps {
-                println "check branch name: ${env.BRANCH_NAME}"
-                checkout([$class: 'GitSCM',
-                          branches: [[name: '*/main']],
-                          doGenerateSubmoduleConfigurations: false,
-                          extensions: [[$class: 'RelativeTargetDirectory',
-                                        relativeTargetDir: 'suggested-library-java']],
-                          submoduleCfg: [],
-                          userRemoteConfigs: [[url: 'https://github.com/yonig15/Suggested-library-Java.git']]])
-            }
-        }
         stage('Calculate & Set Version') {
-            when {
-                branch 'release/*'
-            }
             steps {
                 script {
                     def branchName = env.BRANCH_NAME
@@ -34,7 +19,8 @@ pipeline {
         }
         stage('Build & Test') {
             steps {
-                sh "mvn clean install"
+                sh "mvn test"
+                sh "mvn verify"
             }
         }
         stage('Checkstyle') {
