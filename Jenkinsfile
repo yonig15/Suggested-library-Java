@@ -18,7 +18,7 @@ pipeline {
 
                     if (branchName.startsWith('release/')){
                         def fullVersion = branchName.split('/')[1]
-                        sh "mvn versions:set -DnewVersion=${newVersion}"
+                        sh "mvn versions:set -DnewVersion=${fullVersion}"
                     }else{
                          println "this is not release branch"
                     }
