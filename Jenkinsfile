@@ -20,6 +20,7 @@ pipeline {
                     withCredentials([gitUsernamePassword(credentialsId: 'GitHub', gitToolName: 'Default')]) {
                    
                         sh "mvn versions:set -DnewVersion=${newVersion}"
+                        sh "git add ."
                         sh "git commit -am 'Bump version to ${newVersion}'"
                         sh "git push -u origin HEAD:${env.BRANCH_NAME}"
                     }
