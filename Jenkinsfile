@@ -16,7 +16,7 @@ pipeline {
                     def changes = sh(script: 'git diff --name-only',returnStdout:true)
                     println "changes are :${changes}"
                     
-                    if(changes != '') {
+                    if(changes == '') {
                     withCredentials([gitUsernamePassword(credentialsId: 'GitHub', gitToolName: 'Default')]) {
                    
                         sh "mvn versions:set -DnewVersion=${newVersion}"
@@ -40,11 +40,11 @@ pipeline {
             steps {
                 sh "mvn checkstyle:checkstyle"
             }
-            post {
-                always {
-                    publishCheckStyle pattern: 'target/site/checkstyle-result.xml'
-                }
-            }
+            // post {
+            //     always {
+            //         publishCheckStyle pattern: 'target/site/checkstyle-result.xml'
+            //     }
+            // }
         }
     }
     post {
