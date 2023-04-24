@@ -29,7 +29,7 @@ pipeline {
                     withCredentials([gitUsernamePassword(credentialsId: 'GitHub', gitToolName: 'Default')]) {
                    
                         sh "git add ."
-                        sh "git pull --rebase origin ${env.BRANCH_NAME}"
+                        //sh "git pull --rebase origin ${env.BRANCH_NAME}"
                         sh "git commit -am 'Bump version to ${newVersion}'"
                         sh "git push -u origin HEAD:${env.BRANCH_NAME}"
                     }
